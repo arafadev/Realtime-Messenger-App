@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MessengerController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -37,7 +38,7 @@ Route::group(
     ],
     function () {
 
-        
+        Route::get('messenger', [MessengerController::class, 'index'])->name('home');
 
 
     }
