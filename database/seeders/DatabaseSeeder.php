@@ -17,12 +17,12 @@ class DatabaseSeeder extends Seeder
     {
         User::create([
             'name' => 'Ahmed',
-            'user_name' => 'ahmed_2024',
+            'user_name' => '@ahmed_2024',
             'email' => 'ahmed@gmail.com',
             'email_verified_at' => now(),
             'password' =>  Hash::make('password'),
             'remember_token' => Str::random(10),
         ]);
-        \App\Models\User::factory(20)->create();
+        \App\Models\User::factory(50)->create();
     }
 }
