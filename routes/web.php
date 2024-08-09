@@ -41,6 +41,10 @@ Route::group(
 
         // Search Users
         Route::get('messenger/search', [MessengerController::class, 'search'])->name('messenger.search');
+        // fetch user by id
+        Route::get('messenger/id-info', [MessengerController::class, 'fetchIdInfo'])->name('messenger.id-info');
+        // send message
+        Route::post('messenger/send-message', [MessengerController::class, 'sendMessage'])->name('messenger.send-message');
 
     }
 );

@@ -43,28 +43,19 @@ class MessengerController extends Controller
     }
 
 
-    // function search(Request $request)
-    // {
-    //     $input = $request['query'];
+    function fetchIdInfo(Request $request)
+    {
 
-    //     // Retrieve paginated users
-    //     $records = User::where('id', '!=', Auth::user()->id)
-    //         ->where('name', 'LIKE', '%' . $input . '%')
-    //         ->orWhere('name', 'LIKE', '%' . $input . '%')
-    //         ->paginate(10);
+        $fetch = User::where('id', $request['id'])->first();
+        return response()->json([
+            'fetch' => $fetch
+        ]);
+    }
 
-    //     $getRecords = '';
+    function sendMessage(Request $request)
+    {
+        dd($request->all());
+      
+    }
 
-    //     // Loop through each user and render the search-item view
-    //     foreach ($records as $record) {
-    //         $getRecords .= view('messenger.components.search-item', compact('record'))->render();
-    //     }
-
-    //     return response()->json(
-    //         [
-    //             'records' => $getRecords,
-    //             'last_page' => $records->lastPage() // Corrected here
-    //         ]
-    //     );
-    // }
 }

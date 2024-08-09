@@ -1,9 +1,34 @@
 /**
  * -----------------------------------
+ * Global Variables
+ * -----------------------------------
+ */
+
+var temporaryMsgId = 0;
+const messageFrom = $(".message-form"), 
+    messageInput= $(".message-input"),
+    messageBoxContainer = $(".wsus__chat_area_body"),
+    csrf_token = $("meta[name=csrf_token]").attr("content"); 
+
+        const getMessengerId = () => $("meta[name=id]").attr("content");
+    const setMessengerId = (id) => $("meta[name=id]").attr("content", id);
+
+/**
+ * -----------------------------------
  * Reusable Functions
  * -----------------------------------
  */
 
+function enableChatBoxLoader() {
+    $(".wsus__message_paceholder").removeClass('d-none');
+}
+
+function disableChatBoxLoader() {
+    // $(".wsus__chat_app").removeClass('show_info');
+    $(".wsus__message_paceholder").addClass('d-none');
+    // $(".wsus__message_paceholder_black").addClass('d-none');
+
+}
 function imagePreview(input, selector) {
     if (input.files && input.files[0]) {
         var render = new FileReader();
@@ -90,6 +115,90 @@ function debounce(callback, delay){
     }
 }
 
+/**
+ * ----------------------------------------------
+ * Fetch id data of user and update the view
+ * ----------------------------------------------
+ */
+
+
+
+function IDinfo(id) {
+   $.ajax({
+    method: "GET",
+    url: "/messenger/id-info",
+    data: {id:id},
+    beforeSend: function(){
+        NProgress.start();
+        enableChatBoxLoader();
+
+    },
+    success: function (data) {
+        $(".messenger-header").find("img").attr("src", data.fetch.avatar);
+        $(".messenger-header").find("h4").text(data.fetch.name);
+        $(".messenger-info-view").find("img").attr("src", data.fetch.avatar);
+        $(".messenger-info-view").find(".user_name").text( data.fetch.name);
+        $(".messenger-info-view").find(".user_unique_name").text( data.fetch.user_name);
+        NProgress.done();
+        disableChatBoxLoader();
+
+    },error:function (xhr, status, error){
+        disableChatBoxLoader();
+
+    }
+   });
+}
+
+
+/**
+ * ----------------------------------------------
+ * Send Message
+ * ----------------------------------------------
+ */
+
+function sendMessage(){
+         temporaryMsgId += 1;     
+         let tempID = `temp_${temporaryMsgId}`;
+         const inputValue =  messageInput.val();
+
+         if(inputValue.length > 0){
+            const formData = new FormData($(".message-form")[0]);
+            formData.append("id", getMessengerId());
+            formData.append("temporaryMsgId", tempID);
+            formData.append("_token",csrf_token);
+            $.ajax({
+                method: "POST",
+                url: "/messenger/send-message/",
+                data: formData,
+                dataType: "JSON",
+                processData: false,
+                contentType: false,
+                beforeSend:function(){
+                    messageBoxContainer.append(sendTempMessageCard(inputValue ,tempID));
+                },
+                success: function (data) {
+                    
+                }, error : function(xhr, status, error){
+
+                }
+            });
+        }
+}
+
+
+function sendTempMessageCard(message, tempId){
+return `
+    <div class="wsus__single_chat_area" data-id="${tempId}" >
+        <div class="wsus__single_chat chat_right">
+            <p class="messages">${message}</p>
+            <span class="far fa-clock "> Now</span>
+            <a class="action" href="#"><i class="fas fa-trash"></i></a>
+        </div>
+    </div>
+`
+}
+
+
 
 /**
  * -----------------------------------
@@ -123,5 +232,20 @@ $(document).ready(function () {
         // alert('working');
 
     })
+
+
+    $("body").on("click", ".messenger-list-item", function () {
+        const dataId = $(this).attr("data-id");
+        setMessengerId(dataId);
+        IDinfo(dataId);
+    });
+
+
+   //Send message
+   $(".message-form").on("submit", function (e) {
+    e.preventDefault();
+    sendMessage();
+})
+
 
 });
